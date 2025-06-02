@@ -20,6 +20,20 @@ public class Tile
     {
         if (visual.TryGetComponent<Renderer>(out Renderer renderer))
         {
+            if (tileType == TileType.Path)
+            {
+
+                visual.layer = 7; // Default layer for path tiles
+            }
+            else if (tileType == TileType.Blocked)
+            {
+                visual.layer = 8; // Default layer for blocked tiles
+            }
+            else
+            {
+                visual.layer = 6; // Buildable layer
+            }
+            Debug.Log($"Updating visual for tile at {gridPos} with type {tileType} and material {mat.name}");
             renderer.material = mat;
         }
     }

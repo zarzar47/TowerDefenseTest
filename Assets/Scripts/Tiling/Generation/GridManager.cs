@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class GridManager : MonoBehaviour
 {
-    public static GameManager Instance { get; private set; }
+    public static GridManager Instance { get; private set; }
     public int width = 10;
     public int height = 10;
     public GameObject tilePrefab;
@@ -14,6 +14,9 @@ public class GridManager : MonoBehaviour
     public GameObject[] decorativePrefabs; // drag trees, rocks, etc. in inspector
     private Tile[,] grid;
     private Transform decorationParent;
+
+    /// <summary>World-space integer position → grid coordinate.</summary>
+    private readonly Dictionary<Vector3Int, Vector2Int> worldToGrid = new();
 
     public string buildableLayerName = "Buildable"; // set in inspector or hardcoded
     private int buildableLayer;
@@ -32,7 +35,6 @@ public class GridManager : MonoBehaviour
             decorationParent = new GameObject("DecorationParent").transform;
             decorationParent.SetParent(transform); // nesting it under the GridManager
         }
-        
 
         buildableLayer = LayerMask.NameToLayer(buildableLayerName);
         if (buildableLayer == -1)
@@ -61,6 +63,8 @@ public class GridManager : MonoBehaviour
                 tileObj.name = $"Tile_{x}_{z}";
 
                 grid[x, z] = new Tile(x, z, tileObj);
+                Vector3Int key = new Vector3Int(x, 0, z);
+                worldToGrid[key] = new Vector2Int(x, z);
             }
         }
     }
@@ -79,7 +83,7 @@ public class GridManager : MonoBehaviour
                 tile.type = TileType.Empty;
             }
         }
-
+        worldToGrid.Clear();
         GenerateRandomPath(start, end); // regenerate a new random path
     }
 
@@ -143,6 +147,23 @@ public class GridManager : MonoBehaviour
         RefreshTileVisuals(); // this makes the path tiles visible after every Random path generation
     }
 
+    public bool TryGetTileCoordinate(Vector3 worldPos, out Vector2Int coord)
+    {
+        // Snap to the nearest integer cell centre.  
+        // Assumes your tiles are placed on whole-number X/Z positions.
+        Vector3Int key = new Vector3Int(
+            Mathf.RoundToInt(worldPos.x),
+            0,
+            Mathf.RoundToInt(worldPos.z));
+
+        return worldToGrid.TryGetValue(key, out coord);
+    }
+
+    // Convenience wrapper if you want the Tile object itself (or null if none).
+    public Tile GetTileAtWorldPosition(Vector3 worldPos)
+    {
+        return TryGetTileCoordinate(worldPos, out var c) ? grid[c.x, c.y] : null;
+    }
 
     void RefreshTileVisuals()
     {
@@ -169,7 +190,7 @@ public class GridManager : MonoBehaviour
                     tile.visual.layer = buildableLayer;
                 }
 
-                tile.UpdateVisual(mat);
+                tile.UpdateVisual(mat, tile.type);
 
                 if (tile.type == TileType.Blocked && decorativePrefabs.Length > 0 && Random.value < 0.3f)
                 {
@@ -185,7 +206,6 @@ public class GridManager : MonoBehaviour
             }
         }
     }
-
 
     public void ResetBoard()
     {
@@ -208,6 +228,7 @@ public class GridManager : MonoBehaviour
         }
 
         // 3. Clear grid, regenerate
+        worldToGrid.Clear();
         GenerateGrid();
         GenerateNewPath();
     }

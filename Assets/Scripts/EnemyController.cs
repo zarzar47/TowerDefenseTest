@@ -11,13 +11,21 @@ public class EnemyController : MonoBehaviour
     private int maxHealth = 3; // Maximum health for the enemy, can be used for health bar calculations
     [SerializeField] private Image _healthBar; // Reference to the health bar prefab
     public AudioClip deathSound; // Sound to play on death
+    private GridPosition gridPosition; // Reference to the grid position of the 
+
+    void Start()
+    {
+        Vector2Int coords;
+        GridManager.Instance.TryGetTileCoordinate(transform.position, out coords);
+        gridPosition = new GridPosition(coords.x, coords.y); // Initialize the grid position based on the current position
+    }
+
     public void SetPath(List<Vector3> worldPath)
     {
         maxHealth = health; // Set max health to the initial health value
         path = new List<Vector3>(worldPath);
         transform.position = path[0];
         currentIndex = 1;
-        // _healthBar = GetComponentInChildren<Image>(); // Get the health bar component from the child object
     }
 
     void Update() // this constains movement logic for the enemy
@@ -27,13 +35,18 @@ public class EnemyController : MonoBehaviour
         Vector3 target = path[currentIndex];
         transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
 
+        if (Vector3.Distance(transform.position, target) < 0.01f)
+        {
+            transform.position = target; // Snap to the target position to avoid floating point errors
+        }
+
         if (Vector3.Distance(transform.position, target) < 0.1f)
         {
-            currentIndex++;
+            currentIndex++; // index corresponds to the next point in the path
 
             if (currentIndex >= path.Count)
             {
-                ReachGoal();
+                ReachGoal(); // basic logic for reaching the goal
             }
         }
     }
@@ -64,11 +77,11 @@ public class EnemyController : MonoBehaviour
     public void TakeDamage(int damage)
     {
         health -= damage;
-        UpdateHealthBar(maxHealth, health);
+        UpdateHealthBar(maxHealth, health); // Update the health bar UI with the new health value
 
         if (health <= 0)
         {
-            GameManager.Instance.IncrementScore(1); // Example method name
+            GameManager.Instance.IncrementScore(1); // Increment score by 1 when the enemy is destroyed
             DestroyEnemy();
         }
     }

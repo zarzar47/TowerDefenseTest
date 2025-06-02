@@ -15,17 +15,20 @@ public class GameManager : MonoBehaviour
     GridManager gridManager;
     EnemySpawner enemySpawner;
     private List<Tower> towerList;
-    public bool IsGameOver { get; private set; } = false;
+    private bool IsGameOver { get; set; } = false;
+    
+    public int startingMoney = 5; // Initial money for the player
+    private int currentMoney = 0; // This can be used to track player's money
+
+    [Header("UI Elements")]
     public TextMeshProUGUI Lives_text;
     public TextMeshProUGUI Score_text;
     public TextMeshProUGUI Final_Score_text_Victory;
     public TextMeshProUGUI Final_Score_text_Defeat;
     public TextMeshProUGUI Money_text;
-    public int enemyKilled = 0;
-    public int startingMoney = 5; // Initial money for the player
-    private int currentMoney = 0; // This can be used to track player's money
-    public GameObject Victory_Panel;
-    public GameObject Defeat_Panel;
+    private int enemyKilled = 0;
+    [SerializeField] private GameObject Victory_Panel;
+    [SerializeField] private GameObject Defeat_Panel;
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -119,7 +122,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void AdvanceGame()
+    public void AdvanceGame() // This method is called to advance the game, typically after a wave is completed
     {
         Debug.Log("Advancing game...");
 
@@ -150,7 +153,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void PlaceTowerAt(Vector2Int gridPos, GameObject towerPrefab)
+    public void PlaceTowerAt(Vector2Int gridPos, GameObject towerPrefab) // This method is called to place a tower at a specific grid position
     {
         if (gridManager == null) gridManager = FindFirstObjectByType<GridManager>();
         Tile tile = gridManager.GetTile(gridPos.x, gridPos.y);

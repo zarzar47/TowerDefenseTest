@@ -7,13 +7,13 @@ public class EnemySpawner : MonoBehaviour
 {
     public static EnemySpawner Instance { get; private set; }
 
-    public GameObject enemyPrefab;
+    [Header("Enemy Prefabs & Spawn Probabilities")]
+    public List<GameObject> enemyPrefabs;
+    [Range(0f, 1f)] public float enemy0Probability = 0.8f; // Enemy at index 0 = 80% (this is mainly for testing purposes)
+
     public GridManager gridManager;
 
     private List<EnemyController> enemyQueue;
-
-    // Tick-based spawn timing
-    private float spawnInterval = 1f;
 
     // Wave system
     public int currentWave = 0;
@@ -25,9 +25,9 @@ public class EnemySpawner : MonoBehaviour
     private float baseHealth = 3f;
     private float baseSpeed = 2f;
     public TextMeshProUGUI textMesh;
+
     void Awake()
     {
-        // Singleton setup
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -35,7 +35,6 @@ public class EnemySpawner : MonoBehaviour
         }
 
         Instance = this;
-        // DontDestroyOnLoad(gameObject); // optional if you want to persist between scenes
     }
 
     void Start()
@@ -43,18 +42,35 @@ public class EnemySpawner : MonoBehaviour
         enemyQueue = new List<EnemyController>();
     }
 
-    public void StartNextWave()
+    public void StartNextWave() // This method is called to start the next wave of enemies
     {
-        currentWave++;
-        enemiesToSpawn = 1 + currentWave; // Wave 1 = 2 enemies, Wave 2 = 3, etc.
-        enemiesSpawned = 0;
-        isSpawningWave = true;
+        currentWave++; // Increment the wave count, to keep track of the current wave
+        enemiesToSpawn = 1 + currentWave;
+        enemiesSpawned = 0; 
+        isSpawningWave = true; // Set the flag to indicate that we are spawning a new wave of enemies, this helps us in spawning based on the tick system
         textMesh.text = $"{currentWave}";
-        Debug.Log($"Starting Wave {currentWave} with {enemiesToSpawn} enemies.");
-        GameManager.Instance.AdvanceGame(); // Notify GameManager to advance the game state
+        GameManager.Instance.AdvanceGame();
     }
 
-    public void SpawnEnemy()
+    private GameObject ChooseEnemyPrefab() // This method randomly chooses an enemy prefab based on the defined probabilities, nothing inherently important
+    {
+        float roll = UnityEngine.Random.value;
+        if (enemyPrefabs.Count == 0)
+        {
+            Debug.LogError("No enemy prefabs assigned!");
+            return null;
+        }
+        if (enemyPrefabs.Count == 1 || roll < enemy0Probability)
+        {
+            return enemyPrefabs[0];
+        }
+        else
+        {
+            return enemyPrefabs[1 % enemyPrefabs.Count]; // fallback if more than 2
+        }
+    }
+
+    public void SpawnEnemy() // IMPORTANT: This method is called to spawn an enemy, it checks if the path is initialized and then spawns an enemy at the start of the path
     {
         if (gridManager.pathWorldPositions.Count == 0)
         {
@@ -62,13 +78,16 @@ public class EnemySpawner : MonoBehaviour
             return;
         }
 
-        GameObject enemy = Instantiate(enemyPrefab);
+        GameObject chosenPrefab = ChooseEnemyPrefab();
+        if (chosenPrefab == null) return;
+
+        GameObject enemy = Instantiate(chosenPrefab);
         EnemyController mover = enemy.GetComponent<EnemyController>();
         mover.SetPath(gridManager.pathWorldPositions);
 
         float healthMultiplier = 1f + (currentWave - 1) * 0.05f;
         float speedMultiplier = 1f + (currentWave - 1) * 0.05f;
-        mover.health = (int) Math.Ceiling(baseHealth * healthMultiplier);
+        mover.health = (int)Math.Ceiling(baseHealth * healthMultiplier);
         mover.speed = baseSpeed * speedMultiplier;
 
         enemyQueue.Add(mover);
@@ -78,19 +97,17 @@ public class EnemySpawner : MonoBehaviour
     {
         enemyQueue.Remove(enemy);
 
-        // Auto-start next wave if all enemies are dead and wave was fully spawned
-        if (enemyQueue.Count == 0 && !isSpawningWave && currentWave < maxWaves)
+        if (enemyQueue.Count == 0 && !isSpawningWave && currentWave < maxWaves) // This checks if all enemies are cleared, so we can start the next wave
         {
             StartNextWave();
-        } else if
-        (enemyQueue.Count == 0 && currentWave >= maxWaves)
+        }
+        else if (enemyQueue.Count == 0 && currentWave >= maxWaves) // This checks if all enemies are cleared and we have reached the max waves
         {
-            GameManager.Instance.WinGame(); // Trigger game over if all waves are done
+            GameManager.Instance.WinGame();
         }
     }
 
-
-    public void ClearEnemies()
+    public void ClearEnemies() // clean up method
     {
         foreach (var enemy in enemyQueue)
         {
@@ -101,7 +118,7 @@ public class EnemySpawner : MonoBehaviour
         enemyQueue.Clear();
     }
 
-    public void ResetSpawner()
+    public void ResetSpawner() // clean up method
     {
         currentWave = 0;
         enemiesToSpawn = 0;
@@ -111,7 +128,7 @@ public class EnemySpawner : MonoBehaviour
         textMesh.text = "0";
     }
 
-    public bool finished()
+    public bool finished() // testing method
     {
         return currentWave >= maxWaves && enemyQueue.Count == 0 && !isSpawningWave;
     }
@@ -121,12 +138,12 @@ public class EnemySpawner : MonoBehaviour
         TickSystem.OnTick += HandleTick;
     }
 
-    void OnDisable()
+    void OnDisable() // This is needed to avoid memory leaks, we need to unsubscribe from the tick system when this script is disabled
     {
         TickSystem.OnTick -= HandleTick;
     }
 
-    void HandleTick()
+    void HandleTick() // This method is called every tick, it checks if we are spawning a wave and spawns enemies accordingly in Ticks, keeping things simple and efficient
     {
         if (isSpawningWave)
         {
@@ -137,7 +154,7 @@ public class EnemySpawner : MonoBehaviour
             }
             else
             {
-                isSpawningWave = false; // Done spawning this wave
+                isSpawningWave = false;
             }
         }
     }
