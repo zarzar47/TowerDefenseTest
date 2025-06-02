@@ -103,6 +103,7 @@ public class Tower : MonoBehaviour
         }
     }
 
+    // Basic attack function to make attacking universal for different tower types
     public void Attack()
     {
         if (enemyQueue.Count == 0 || enemyQueue[0] == null) return;
@@ -125,6 +126,7 @@ public class Tower : MonoBehaviour
         }
     }
 
+    // Attempt upgrade of the tower depending on the player's money
     public bool TryUpgrade(int playerMoney, out int moneySpent)
     {
         moneySpent = 0;

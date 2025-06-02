@@ -2,6 +2,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+// This script handles the dragging and placement of tower prefabs in a tower defense game.
+// It allows players to drag a tower from the UI and place it on a buildable tile in the game world.
+// Can be easily extended to include more features like tower rotation, validation checks, etc.
 public class TowerDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public GameObject towerPrefab;

@@ -1,5 +1,7 @@
 using UnityEngine;
 
+// Singleton class for managing audio in the game.
+// This class handles playing sound effects and music, including a specific sound for upgrades.
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance;

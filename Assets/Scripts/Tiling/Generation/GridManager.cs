@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class GridManager : MonoBehaviour
 {
-    public static GridManager Instance { get; private set; }
+    public static GridManager Instance { get; private set; } // Singleton instance
     public int width = 10;
     public int height = 10;
     public GameObject tilePrefab;
@@ -27,7 +27,7 @@ public class GridManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        // DontDestroyOnLoad(gameObject);
+        Instance = this;
         // this will make decorations easier to manage
         decorationParent = transform.GetChild(0); // this will always get the decoration parent if it exists
         if (decorationParent == null || decorationParent.name != "DecorationParent")
@@ -46,10 +46,7 @@ public class GridManager : MonoBehaviour
         GenerateRandomPath(new Vector2Int(0, 0), new Vector2Int(width - 1, height - 1));
     }
 
-    // void Update()
-    // {
-    //     // print("Current path length " +pathWorldPositions.Count); 
-    // }
+    // Physical grid of tiles, each with a visual representation.
     void GenerateGrid()
     {
         grid = new Tile[width, height];
@@ -88,6 +85,10 @@ public class GridManager : MonoBehaviour
     }
 
 
+    // Generates a random path from start to end, ensuring it is walkable.
+    // This method uses a simple random walk algorithm to create a path.
+    // All enemies will follow this path.
+    // But also all towers will be placed around this path. Within 1 tile radius.
     void GenerateRandomPath(Vector2Int start, Vector2Int end)
     {
         Vector2Int current = start;
@@ -150,7 +151,6 @@ public class GridManager : MonoBehaviour
     public bool TryGetTileCoordinate(Vector3 worldPos, out Vector2Int coord)
     {
         // Snap to the nearest integer cell centre.  
-        // Assumes your tiles are placed on whole-number X/Z positions.
         Vector3Int key = new Vector3Int(
             Mathf.RoundToInt(worldPos.x),
             0,
@@ -178,20 +178,15 @@ public class GridManager : MonoBehaviour
                 if (tile.type == TileType.Path)
                 {
                     mat = pathMaterial;
-                    tile.visual.layer = 0; // Default layer
                 }
                 else if (tile.type == TileType.Blocked)
                 {
                     mat = blockedMaterial;
-                    tile.visual.layer = 0; // Default layer
-                }
-                else
-                {
-                    tile.visual.layer = buildableLayer;
                 }
 
                 tile.UpdateVisual(mat, tile.type);
 
+                // This is where we instantiate decorations on blocked tiles (trees, rocks, etc.)
                 if (tile.type == TileType.Blocked && decorativePrefabs.Length > 0 && Random.value < 0.3f)
                 {
                     Vector3 pos = tile.visual.transform.position;

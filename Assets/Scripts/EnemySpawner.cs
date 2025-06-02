@@ -10,18 +10,14 @@ public class EnemySpawner : MonoBehaviour
     [Header("Enemy Prefabs & Spawn Probabilities")]
     public List<GameObject> enemyPrefabs;
     [Range(0f, 1f)] public float enemy0Probability = 0.8f; // Enemy at index 0 = 80% (this is mainly for testing purposes)
-
-    public GridManager gridManager;
-
+    public GridManager gridManager; // can remove this beacuse of the singleton pattern, but keeping it for clarity
     private List<EnemyController> enemyQueue;
-
     // Wave system
     public int currentWave = 0;
     private int enemiesToSpawn = 0;
     private int enemiesSpawned = 0;
     private int maxWaves = 5;
     private bool isSpawningWave = false;
-
     private float baseHealth = 3f;
     private float baseSpeed = 2f;
     public TextMeshProUGUI textMesh;

@@ -16,7 +16,6 @@ public class GameManager : MonoBehaviour
     EnemySpawner enemySpawner;
     private List<Tower> towerList;
     private bool IsGameOver { get; set; } = false;
-    
     public int startingMoney = 5; // Initial money for the player
     private int currentMoney = 0; // This can be used to track player's money
 

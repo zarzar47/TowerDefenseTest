@@ -33,7 +33,6 @@ public class Tile
             {
                 visual.layer = 6; // Buildable layer
             }
-            Debug.Log($"Updating visual for tile at {gridPos} with type {tileType} and material {mat.name}");
             renderer.material = mat;
         }
     }

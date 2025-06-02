@@ -1,5 +1,8 @@
 using UnityEngine;
 
+// Helper class for managing tower upgrades
+// This class encapsulates the logic for upgrading a tower's level and calculating the cost and damage increase.
+// It can be easily extended to include more features like different upgrade paths, visual effects, etc.
 public class TowerUpgrade
 {
     public int Level { get; private set; } = 0;
