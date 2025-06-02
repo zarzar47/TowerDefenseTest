@@ -5,6 +5,11 @@ using UnityEngine.SceneManagement;
 using Unity.VisualScripting;
 using UnityEngine.UIElements;
 
+/// <summary>
+/// Manages the overall game state, including player lives, currency, score,
+/// wave progression, and win/loss conditions. Acts as a central singleton.
+/// </summary>
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }

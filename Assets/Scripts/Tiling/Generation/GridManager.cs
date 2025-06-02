@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Manages the grid of tiles, including path generation, tile types, and decorations.
+/// This class is a singleton, ensuring only one instance exists in the scene.
+/// </summary>
 public class GridManager : MonoBehaviour
 {
     public static GridManager Instance { get; private set; } // Singleton instance
@@ -57,7 +61,7 @@ public class GridManager : MonoBehaviour
             {
                 Vector3 position = new Vector3(x, 0, z);
                 GameObject tileObj = Instantiate(tilePrefab, position, Quaternion.identity, transform);
-                tileObj.name = $"Tile_{x}_{z}";
+                tileObj.name = $"Tile_{x}_{z}"; // Naming conventions for easier debugging
 
                 grid[x, z] = new Tile(x, z, tileObj);
                 Vector3Int key = new Vector3Int(x, 0, z);

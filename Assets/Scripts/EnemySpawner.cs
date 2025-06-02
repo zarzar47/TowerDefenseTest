@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
+/// <summary>
+/// Manages the spawning of enemies in waves.
+/// This class is a singleton, ensuring only one instance exists in the scene.
+/// It handles enemy spawning based on a tick system, allowing for controlled wave progression.
+/// Enemies are spawned at the start of a predefined path, with health and speed scaling based on the current wave.
+/// </summary>
 public class EnemySpawner : MonoBehaviour
 {
     public static EnemySpawner Instance { get; private set; }
@@ -42,7 +48,7 @@ public class EnemySpawner : MonoBehaviour
     {
         currentWave++; // Increment the wave count, to keep track of the current wave
         enemiesToSpawn = 1 + currentWave;
-        enemiesSpawned = 0; 
+        enemiesSpawned = 0;
         isSpawningWave = true; // Set the flag to indicate that we are spawning a new wave of enemies, this helps us in spawning based on the tick system
         textMesh.text = $"{currentWave}";
         GameManager.Instance.AdvanceGame();

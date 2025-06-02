@@ -2,6 +2,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+/// <summary>
+/// Controls the behavior of enemies in the game.
+/// This includes movement along a path, health management, and interactions with the game manager.
+/// Enemies follow a path defined by a list of world positions, moving towards the next point in the path at a specified speed.
+/// Enemies can take damage, and when their health reaches zero, they are destroyed.
+/// Enemies also interact with the game manager to update the score and player lives when they reach the goal.
+/// </summary>
 public class EnemyController : MonoBehaviour
 {
     private List<Vector3> path;

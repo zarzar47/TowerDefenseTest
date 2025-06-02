@@ -2,6 +2,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+/// <summary>
+/// Represents a tower in the game that can attack enemies within its range.
+/// The tower has properties such as attack interval, base damage, cost, and upgrade level.
+/// It manages a queue of enemies that enter its range and attacks them at specified intervals.
+/// The tower can be upgraded to increase its damage output, and it has a UI element to indicate upgrade availability.
+/// The tower's attack logic is controlled by an animator, and it can flip its sprite based on the enemy's position.
+/// The attack range of the tower is defined by a collider, and it interacts with enemies that enter or exit this range.
+/// </summary>
+
 public class Tower : MonoBehaviour
 {
     public float attackInterval = 1f;
@@ -81,7 +90,7 @@ public class Tower : MonoBehaviour
     }
 
     public int GetCost()
-    { 
+    {
         return cost;
     }
     public void setGridPosition(Vector2Int gridPos)
